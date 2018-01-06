@@ -73,7 +73,7 @@ py::bytes dump_arrays(const std::vector<py::array>& arrs) {
   for (auto& arr : arrs) total_size += arr_size(arr);
 
   std::string ret;
-  ret.resize(total_size);
+  ret.resize(total_size);  // pre-allocate space
   char* ptr = &ret[0];
   write_int32((int)arrs.size(), &ptr);
 

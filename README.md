@@ -2,10 +2,10 @@
 ## TensorFlow ZMQ Op
 
 + Send a list of numpy arrays from python; serialization is written in C++ for efficiency.
-	+ One copy in merging all the buffers; One copy in pybind11 overhead (TODO); One copy in ZMQ send.
+  + One copy in merging all the buffers; One copy in pybind11 overhead (TODO); One copy in ZMQ send.
 + Receive a list of tensors from tensorflow;
   + One copy in ZMQ recv; One copy to split the buffer into tensors.
-	+ The op is stateful and safe to be evaluated multiple times in one `sess.run` call.
+  + The op is stateful and safe to be evaluated multiple times in one `sess.run` call.
 + Serialization is in a custom protocol for efficiency;
 
 ## Build:

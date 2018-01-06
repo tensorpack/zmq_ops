@@ -97,7 +97,7 @@ REGISTER_OP("ZMQPull")
     .SetIsStateful()
     .Doc(R"doc(
 Receive a list of Tensors from a ZMQ connection handle.
-The serialization format is a custom format, defined in 'zmq_recv.py'.
+The serialization format is a custom format, defined in 'zmq_ops/zmq_ops.py'.
 )doc");
 
 

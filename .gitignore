@@ -1,0 +1,7 @@
+
+
+*.so
+*.pyc
+
+obj
+__pycache__

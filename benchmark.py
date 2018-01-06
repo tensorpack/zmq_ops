@@ -18,6 +18,7 @@ TQDM_BAR_FMT = '{l_bar}{bar}|{n_fmt}/{total_fmt}[{elapsed}<{remaining},{rate_noi
 TQDM_BAR_LEN = 1000
 
 def send():
+    """ We use float32 data to pressure the system. In practice you'd use uint8 images."""
     data = [
         np.random.rand(64, 224, 224, 3).astype('float32'),
         (np.random.rand(64)*100).astype('int32')
@@ -28,10 +29,11 @@ def send():
     socket.connect(PIPE)
 
     try:
-        with tqdm.trange(TQDM_BAR_LEN, ascii=True, bar_format=TQDM_BAR_FMT) as pbar:
-            for k in range(TQDM_BAR_LEN):
-                socket.send(dump_arrays(data), copy=False)
-                pbar.update(1)
+        while True:
+            with tqdm.trange(TQDM_BAR_LEN, ascii=True, bar_format=TQDM_BAR_FMT) as pbar:
+                for k in range(TQDM_BAR_LEN):
+                    socket.send(dump_arrays(data), copy=False)
+                    pbar.update(1)
     finally:
         socket.setsockopt(zmq.LINGER, 0)
         socket.close()
@@ -43,21 +45,22 @@ def send():
 def recv():
     sock = ZMQPullSocket(PIPE, [tf.float32, tf.int32], args.hwm)
     fetches = []
-    for k in range(3):
-        fetches.append(sock.pull()[0])
+    for k in range(8):  # 8 GPUs pulling together in one sess.run call
+        fetches.extend(sock.pull())
     fetch_op = tf.group(*fetches)
 
     with tf.Session() as sess:
-        with tqdm.trange(TQDM_BAR_LEN, ascii=True, bar_format=TQDM_BAR_FMT) as pbar:
-            for k in range(TQDM_BAR_LEN):
-                sess.run(fetch_op)
-                pbar.update(3)
+        while True:
+            with tqdm.trange(TQDM_BAR_LEN, ascii=True, bar_format=TQDM_BAR_FMT) as pbar:
+                for k in range(TQDM_BAR_LEN // 8):
+                    sess.run(fetch_op)
+                    pbar.update(8)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('task', choices=['send', 'recv'])
-    parser.add_argument('--hwm', type=int, default=100)
+    parser.add_argument('--hwm', type=int, default=200)
     args = parser.parse_args()
 
     if args.task == 'send':

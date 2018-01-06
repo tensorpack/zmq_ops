@@ -60,6 +60,8 @@ int get_tf_dtype(const py::array& arr) {
         case 16: return T::DT_COMPLEX128;
       }
       break;
+    case 'b':
+      return T::DT_BOOL;
   }
   fprintf(stderr, "Unsupported array type!\n");
   fflush(stderr);

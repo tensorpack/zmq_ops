@@ -17,8 +17,8 @@ from .common import compile, get_ext_suffix, get_src_dir
 __all__ = ['dump_arrays', 'ZMQPullSocket']
 
 
-_zmq_ops = None
-libzmqop = None
+sys.path.insert(0, get_src_dir())
+import libzmqop
 
 
 def _load_op():
@@ -29,16 +29,10 @@ def _load_op():
         if ret != 0:
             raise RuntimeError("ops compilation failed!")
 
-    global _zmq_ops
-    _zmq_ops = tf.load_op_library(so_file)
-
-    sys.path.insert(0, get_src_dir())
-    import libzmqop as lib
-    global libzmqop
-    libzmqop = lib
+    return tf.load_op_library(so_file)
 
 
-_load_op()
+_zmq_ops = _load_op()
 
 
 class ZMQPullSocket(object):
@@ -62,30 +56,6 @@ class ZMQPullSocket(object):
     def pull(self):
         return _zmq_ops.zmq_pull(
             self._zmq_handle, self._types)
-
-
-# copied from tensorflow/python/framework/dtypes.py
-_DTYPE_DICT = {
-    np.float16: DT.DT_HALF,
-    np.float32: DT.DT_FLOAT,
-    np.float64: DT.DT_DOUBLE,
-
-    np.uint8: DT.DT_UINT8,
-    np.uint16: DT.DT_UINT16,
-    np.uint32: DT.DT_UINT32,
-    np.uint64: DT.DT_UINT64,
-
-    np.int64: DT.DT_INT64,
-    np.int32: DT.DT_INT32,
-    np.int16: DT.DT_INT16,
-    np.int8: DT.DT_INT8,
-
-    np.complex64: DT.DT_COMPLEX64,
-    np.complex128: DT.DT_COMPLEX128,
-
-    np.bool: DT.DT_BOOL,
-}
-_DTYPE_DICT = {np.dtype(k): v for k, v in _DTYPE_DICT.items()}
 
 
 def dump_arrays(arrs):
@@ -118,6 +88,30 @@ def dump_arrays(arrs):
         assert isinstance(arrs[idx], np.ndarray), type(arrs[idx])
 
     return libzmqop.dump_arrays(arrs)
+
+
+# copied from tensorflow/python/framework/dtypes.py
+_DTYPE_DICT = {
+    np.float16: DT.DT_HALF,
+    np.float32: DT.DT_FLOAT,
+    np.float64: DT.DT_DOUBLE,
+
+    np.uint8: DT.DT_UINT8,
+    np.uint16: DT.DT_UINT16,
+    np.uint32: DT.DT_UINT32,
+    np.uint64: DT.DT_UINT64,
+
+    np.int64: DT.DT_INT64,
+    np.int32: DT.DT_INT32,
+    np.int16: DT.DT_INT16,
+    np.int8: DT.DT_INT8,
+
+    np.complex64: DT.DT_COMPLEX64,
+    np.complex128: DT.DT_COMPLEX128,
+
+    np.bool: DT.DT_BOOL,
+}
+_DTYPE_DICT = {np.dtype(k): v for k, v in _DTYPE_DICT.items()}
 
 
 def dump_arrays_py(arrs):

@@ -7,7 +7,6 @@
 #include <iostream>
 #include <thread>
 
-#include <tensorflow/core/framework/resource_mgr.h>
 #include <tensorflow/core/framework/tensor_shape.h>
 #include <tensorflow/core/lib/gtl/inlined_vector.h>
 #include <tensorflow/core/lib/strings/strcat.h>

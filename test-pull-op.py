@@ -12,7 +12,7 @@ import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf # noqa
 from zmq_ops import (  # noqa
-    ZMQPullSocket, dumps_zmq_op)
+    ZMQPullSocket, dump_arrays)
 
 
 ENDPOINT = 'ipc://test-pipe'
@@ -27,7 +27,7 @@ def send(iterable, delay=0):
         if delay > 0:
             time.sleep(delay)
             print("Sending data to socket..")
-        sok.send(dumps_zmq_op(dp))
+        sok.send(dump_arrays(dp))
     time.sleep(999)
 
 

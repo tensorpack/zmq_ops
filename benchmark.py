@@ -11,7 +11,7 @@ import tqdm
 import zmq
 import tensorflow as tf
 
-from zmq_ops import dumps_zmq_op, ZMQPullSocket
+from zmq_ops import dump_arrays, ZMQPullSocket
 
 PIPE = 'ipc://testpipe'
 TQDM_BAR_FMT = '{l_bar}{bar}|{n_fmt}/{total_fmt}[{elapsed}<{remaining},{rate_noinv_fmt}]'
@@ -30,8 +30,7 @@ def send():
     try:
         with tqdm.trange(TQDM_BAR_LEN, ascii=True, bar_format=TQDM_BAR_FMT) as pbar:
             for k in range(TQDM_BAR_LEN):
-                # d = dumps_zmq_op(data)
-                socket.send(dumps_zmq_op(data), copy=False)
+                socket.send(dump_arrays(data), copy=False)
                 pbar.update(1)
     finally:
         socket.setsockopt(zmq.LINGER, 0)

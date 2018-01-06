@@ -13,7 +13,7 @@ from tensorflow.core.framework import types_pb2 as DT
 
 from .common import compile, get_ext_suffix, get_src_dir
 
-__all__ = ['dumps_zmq_op', 'ZMQPullSocket']
+__all__ = ['dump_arrays', 'ZMQPullSocket']
 
 
 _zmq_mod = None
@@ -81,42 +81,12 @@ _DTYPE_DICT = {
 _DTYPE_DICT = {np.dtype(k): v for k, v in _DTYPE_DICT.items()}
 
 
-def to_tensor_proto(arr):
+def dump_arrays(arrs):
     """
-    Convert a numpy array to TensorProto
+    Dump a list of nparray into a format that the ZMQPull op would accept.
 
-    Args:
-        arr: numpy.ndarray. only supports common numerical types
-    """
-    if isinstance(arr, float):
-        arr = np.asarray(arr).astype('float32')
-    elif isinstance(arr, int):
-        arr = np.asarray(arr).astype('int32')
-    assert isinstance(arr, np.ndarray), type(arr)
-    try:
-        dtype = _DTYPE_DICT[arr.dtype]
-    except KeyError:
-        raise KeyError("Dtype {} is unsupported by current ZMQ Op!".format(arr.dtype))
-
-    ret = TensorProto()
-    shape = ret.tensor_shape
-    for s in arr.shape:
-        d = shape.dim.add()
-        d.size = s
-
-    ret.dtype = dtype
-
-    buf = arr.tobytes()
-    ret.tensor_content = buf
-    return ret
-
-
-def dump_tensor_protos(protos):
-    """
-    Serialize a list of :class:`TensorProto`, for communication between custom TensorFlow ops.
-
-    Args:
-        protos (list): list of :class:`TensorProto` instance
+    Returns:
+        a binary string
 
     Notes:
         The format is:
@@ -129,31 +99,28 @@ def dump_tensor_protos(protos):
         [dtype(int32)][ndims(int32)][shape[0](int32)]...[shape[n](int32)]
         [len(buffer)(int64)][buffer]
     """
+    assert isinstance(arrs, (list, tuple))
 
-    s = struct.pack('=i', len(protos))
-    for p in protos:
-        tensor_content = p.tensor_content
+    s = struct.pack('=i', len(arrs))
+    for arr in arrs:
+        if isinstance(arr, float):
+            arr = np.asarray(arr).astype('float32')
+        elif isinstance(arr, int):
+            arr = np.asarray(arr).astype('int32')
+        assert isinstance(arr, np.ndarray), type(arr)
+        try:
+            dtype = _DTYPE_DICT[arr.dtype]
+        except KeyError:
+            raise KeyError("Dtype {} is unsupported by current ZMQ Op!".format(arr.dtype))
 
-        s += struct.pack('=i', int(p.dtype))
-        dims = p.tensor_shape.dim
+
+        s += struct.pack('=i', int(dtype))
+        dims = arr.shape
         s += struct.pack('=i', len(dims))
         for k in dims:
-            s += struct.pack('=i', k.size)
+            s += struct.pack('=i', k)
+
+        tensor_content = arr.tobytes()
         s += struct.pack('=q', len(tensor_content))
         s += tensor_content
     return s
-
-
-def dumps_zmq_op(dp):
-    """
-    Dump a datapoint (list of nparray) into a format that the ZMQPull op would accept.
-
-    Args:
-        dp: list of nparray
-
-    Returns:
-        a binary string
-    """
-    assert isinstance(dp, (list, tuple))
-    protos = [to_tensor_proto(arr) for arr in dp]
-    return dump_tensor_protos(protos)

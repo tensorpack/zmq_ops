@@ -1,16 +1,16 @@
 
 ## TensorFlow ZMQ Op
 
-It receives a **list of tensors** from a ZMQ endpoint, with a custom serialization format.
-
++ Send a list of numpy arrays from python; serialization is written in C++ for efficiency.
++ Recv a list of tensors from tensorflow;
++ Serialization is in a custom protocol for efficiency;
 
 ## Build:
 
 Install libzmq, as well as the `zmq.hpp` header from cppzmq.
 
-`make`.
-
+Then, `make`
 
 ## Use:
 
-See `test-pull-op.py` for usage.
+See `benchmark.py` for usage.

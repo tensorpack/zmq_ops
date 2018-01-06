@@ -21,7 +21,7 @@ def send():
     data = [
         np.random.rand(64, 224, 224, 3).astype('float32'),
         (np.random.rand(64)*100).astype('int32')
-    ]
+    ]   # 37MB per data
     ctx = zmq.Context()
     socket = ctx.socket(zmq.PUSH)
     socket.set_hwm(args.hwm)
@@ -42,13 +42,16 @@ def send():
 
 def recv():
     sock = ZMQPullSocket(PIPE, [tf.float32, tf.int32], args.hwm)
-    tensors = sock.pull()
+    fetches = []
+    for k in range(3):
+        fetches.append(sock.pull()[0])
+    fetch_op = tf.group(*fetches)
 
     with tf.Session() as sess:
         with tqdm.trange(TQDM_BAR_LEN, ascii=True, bar_format=TQDM_BAR_FMT) as pbar:
             for k in range(TQDM_BAR_LEN):
-                sess.run([k.op for k in tensors])
-                pbar.update()
+                sess.run(fetch_op)
+                pbar.update(3)
 
 
 if __name__ == '__main__':

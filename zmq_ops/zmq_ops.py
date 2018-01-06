@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: zmq_ops.py
 
+import sys
 import tensorflow as tf
 import struct
 import numpy as np
@@ -16,7 +17,8 @@ from .common import compile, get_ext_suffix, get_src_dir
 __all__ = ['dump_arrays', 'ZMQPullSocket']
 
 
-_zmq_mod = None
+_zmq_ops = None
+libzmqop = None
 
 
 def _load_op():
@@ -27,8 +29,13 @@ def _load_op():
         if ret != 0:
             raise RuntimeError("ops compilation failed!")
 
-    global _zmq_mod
-    _zmq_mod = tf.load_op_library(so_file)
+    global _zmq_ops
+    _zmq_ops = tf.load_op_library(so_file)
+
+    sys.path.insert(0, get_src_dir())
+    import libzmqop as lib
+    global libzmqop
+    libzmqop = lib
 
 
 _load_op()
@@ -45,7 +52,7 @@ class ZMQPullSocket(object):
         else:
             self._name = name
 
-        self._zmq_handle = _zmq_mod.zmq_connection(
+        self._zmq_handle = _zmq_ops.zmq_connection(
             end_point, hwm, bind=bind, shared_name=self._name)
 
     @property
@@ -53,7 +60,7 @@ class ZMQPullSocket(object):
         return self._name
 
     def pull(self):
-        return _zmq_mod.zmq_pull(
+        return _zmq_ops.zmq_pull(
             self._zmq_handle, self._types)
 
 
@@ -100,14 +107,23 @@ def dump_arrays(arrs):
         [len(buffer)(int64)][buffer]
     """
     assert isinstance(arrs, (list, tuple))
+    for idx, arr in enumerate(arrs):
 
+        if isinstance(arr, float):
+            arrs[idx] = np.asarray(arr).astype('float32')
+        elif isinstance(arr, int):
+            arrs[idx] = np.asarray(arr).astype('int32')
+
+        assert arrs[idx].flags['C_CONTIGUOUS']
+        assert isinstance(arrs[idx], np.ndarray), type(arrs[idx])
+
+    return libzmqop.dump_arrays(arrs)
+
+
+def dump_arrays_py(arrs):
+    """ The old slow python implementation. """
     s = struct.pack('=i', len(arrs))
     for arr in arrs:
-        if isinstance(arr, float):
-            arr = np.asarray(arr).astype('float32')
-        elif isinstance(arr, int):
-            arr = np.asarray(arr).astype('int32')
-        assert isinstance(arr, np.ndarray), type(arr)
         try:
             dtype = _DTYPE_DICT[arr.dtype]
         except KeyError:

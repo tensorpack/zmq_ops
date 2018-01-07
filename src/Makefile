@@ -1,7 +1,8 @@
 # $File: Makefile
-# $Date: Sat Jan 06 06:50:56 2018 -0800
+# $Date: Sat Jan 06 22:29:32 2018 -0800
 
 OBJ_DIR = obj
+SO_DIR = $(realpath ../zmq_ops)
 PYTHON ?= python
 PYTHON_CONFIG ?= python-config
 
@@ -25,7 +26,6 @@ PYTHON_CXXFLAGS ?= $(shell $(PYTHON_CONFIG) --includes)
 PYTHON_LDFLAGS ?= $(shell $(PYTHON_CONFIG) --ldflags)
 endif
 CXXFLAGS += $(TF_CXXFLAGS) $(PYTHON_CXXFLAGS)
-#LDFLAGS += $(TF_LDFLAGS) $(PYTHON_LDFLAGS)
 
 # extra packages from pkg-config
 LIBS = libzmq
@@ -49,23 +49,24 @@ OBJS = $(addprefix $(OBJ_DIR)/,$(ccSOURCES:.cc=.o))
 DEPFILES = $(OBJS:.o=.d)
 
 EXT_SUFFIX ?= $(shell $(PYTHON) -c 'import sysconfig; print(sysconfig.get_config_var("EXT_SUFFIX"))')
-TF_SO = zmq_pull_op$(EXT_SUFFIX)
-PYBIND_SO = libzmqop$(EXT_SUFFIX)
+TF_SO = $(SO_DIR)/zmq_pull_op$(EXT_SUFFIX)
+PYBIND_SO = $(SO_DIR)/libzmqop$(EXT_SUFFIX)
+ALL_SO = $(TF_SO) $(PYBIND_SO)
 
 .PHONY: all clean
 
-all: $(TF_SO) $(PYBIND_SO)
+all: $(ALL_SO)
 
 ifneq ($(MAKECMDGOALS), clean)
 sinclude $(DEPFILES)
 endif
 
-$(TF_SO): %$(EXT_SUFFIX): $(OBJ_DIR)/%.o
+$(TF_SO): $(SO_DIR)/%$(EXT_SUFFIX): $(OBJ_DIR)/%.o
 	@echo "Linking $@ ..."
 	@$(CXX) $^ -o $@ $(LDFLAGS) $(TF_LDFLAGS)
 	@echo "done."
 
-$(PYBIND_SO): %$(EXT_SUFFIX): $(OBJ_DIR)/%.o
+$(PYBIND_SO): $(SO_DIR)/%$(EXT_SUFFIX): $(OBJ_DIR)/%.o
 	@echo "Linking $@ ..."
 	@$(CXX) $^ -o $@ $(LDFLAGS) $(PYTHON_LDFLAGS)
 	@echo "done."
@@ -80,5 +81,5 @@ $(OBJ_DIR)/%.d: %.cc Makefile
 	@$(CXX) $(CXXFLAGS) -MM -MT "$(OBJ_DIR)/$(<:.cc=.o) $(OBJ_DIR)/$(<:.cc=.d)" "$<"  > "$@" || rm "$@"
 
 clean:
-	@rm -rvf $(OBJ_DIR) $(SO)
+	@rm -rvf $(OBJ_DIR) $(ALL_SO)
 

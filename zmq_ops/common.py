@@ -30,8 +30,12 @@ def compile():
     cxxflags = ' '.join(tf.sysconfig.get_compile_flags())
     ldflags = ' '.join(tf.sysconfig.get_link_flags())
     ext_suffix = get_ext_suffix()
-    compile_cmd = 'TF_CXXFLAGS="{}" TF_LDFLAGS="{}" EXT_SUFFIX="{}" make -C "{}"'.format(
-        cxxflags, ldflags, ext_suffix, get_src_dir())
+    py_include = '-isystem ' + sysconfig.get_path('include')
+    py_ldflags = sysconfig.get_config_var('LDFLAGS') + ' -lpython' + sysconfig.get_config_var('LDVERSION')
+    compile_cmd = 'TF_CXXFLAGS="{}" TF_LDFLAGS="{}" EXT_SUFFIX="{}" ' \
+        'PYTHON_CXXFLAGS="{}" PYTHON_LDFLAGS="{}" make -C "{}"'.format(
+        cxxflags, ldflags, ext_suffix,
+        py_include, py_ldflags, get_src_dir())
     print("Compile ops by command " + compile_cmd + ' ...')
     ret = os.system(compile_cmd)
     return ret

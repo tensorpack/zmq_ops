@@ -10,9 +10,11 @@
 
 ## Build:
 
-Install libzmq, as well as the `zmq.hpp` header from cppzmq.
+Install tensorflow, libzmq, as well as the `zmq.hpp` header from [cppzmq](https://github.com/zeromq/cppzmq).
 
-Then, `make`
+Then, `make -C src`
+
+To install it, `pip install .`
 
 ## Use:
 

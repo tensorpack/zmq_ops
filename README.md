@@ -14,7 +14,10 @@ Install tensorflow, libzmq, as well as the `zmq.hpp` header from [cppzmq](https:
 
 Then, `make -C src`
 
-To install it, `pip install .`
+Add `/path/to/git/clone/zmq_ops` to `PYTHONPATH` to be able to import it.
+Or use `pip install .` to install it.
+
+Note that it may require recompilation after a TensorFlow reinstallation.
 
 ## Use:
 

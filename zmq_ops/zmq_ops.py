@@ -12,18 +12,15 @@ from tensorflow.core.framework.tensor_pb2 import TensorProto
 from tensorflow.core.framework import types_pb2 as DT
 # have to import like this: https://github.com/tensorflow/tensorflow/commit/955f038afbeb81302cea43058078e68574000bce
 
-from .common import compile, get_ext_suffix
+from .common import maybe_compile, get_ext_suffix
 
 __all__ = ['dump_arrays', 'ZMQPullSocket']
 
 
 def _load_op():
+    maybe_compile()
     basename = 'zmq_pull_op' + get_ext_suffix()
     so_file = os.path.join(os.path.dirname(__file__), basename)
-    if not os.path.isfile(so_file):
-        ret = compile()
-        if ret != 0:
-            raise RuntimeError("ops compilation failed!")
     return tf.load_op_library(so_file)
 
 

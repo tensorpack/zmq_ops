@@ -2,10 +2,8 @@ import setuptools
 from setuptools import setup
 import glob
 
-from zmq_ops.common import get_ext_suffix
-
-so_files = glob.glob('zmq_ops/*' + get_ext_suffix())
-assert len(so_files), "Need to compile the libraries first!"
+from zmq_ops.common import maybe_compile, get_ext_suffix
+maybe_compile()
 
 setup(
     name='zmq_ops',

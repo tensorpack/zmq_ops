@@ -1,0 +1,4 @@
+
+To update, run:
+
+$git subtree pull --prefix vendor/pybind11 https://github.com/pybind/pybind11.git master --squash

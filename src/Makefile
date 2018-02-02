@@ -1,5 +1,5 @@
 # $File: Makefile
-# $Date: Sat Jan 06 22:29:32 2018 -0800
+# $Date: Thu Feb 01 21:06:48 2018 -0800
 
 OBJ_DIR = obj
 SO_DIR = $(realpath ../zmq_ops)
@@ -25,7 +25,7 @@ TF_LDFLAGS ?= $(shell $(PYTHON) -c 'import tensorflow as tf; print(" ".join(tf.s
 PYTHON_CXXFLAGS ?= $(shell $(PYTHON_CONFIG) --includes)
 PYTHON_LDFLAGS ?= $(shell $(PYTHON_CONFIG) --ldflags)
 endif
-CXXFLAGS += $(TF_CXXFLAGS) $(PYTHON_CXXFLAGS)
+CXXFLAGS += -I. $(TF_CXXFLAGS) $(PYTHON_CXXFLAGS)
 
 # extra packages from pkg-config
 LIBS = libzmq

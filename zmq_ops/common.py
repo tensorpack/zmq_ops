@@ -41,5 +41,17 @@ def compile():
     return ret
 
 
+def maybe_compile():
+    dirname = os.path.dirname(__file__)
+    for sobase in ['zmq_pull_op', 'libzmqop']:
+        soname = sobase + get_ext_suffix()
+        sofile = os.path.join(dirname, soname)
+        if not os.path.isfile(sofile):
+            ret = compile()
+            if ret != 0:
+                raise RuntimeError("ops compilation failed!")
+            return
+
+
 if __name__ == '__main__':
     compile()

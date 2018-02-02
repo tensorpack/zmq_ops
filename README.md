@@ -22,4 +22,4 @@ Note that it may require recompilation after a TensorFlow reinstallation.
 
 See `benchmark.py` for usage.
 
-On my machine this script can achieve about 1.3G/s throughput (i.e. 2.3k float32 imagenet images per second).
+On my machine this script can achieve about 1.3G/s throughput. Equivalent to about 2.3k float32 (or 9.2k uint8) imagenet images per second.

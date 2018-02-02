@@ -13,7 +13,7 @@ import tensorflow as tf
 
 from zmq_ops import dump_arrays, ZMQPullSocket
 
-PIPE = 'ipc://testpipe'
+PIPE = 'ipc://@testpipe'
 TQDM_BAR_FMT = '{l_bar}{bar}|{n_fmt}/{total_fmt}[{elapsed}<{remaining},{rate_noinv_fmt}]'
 TQDM_BAR_LEN = 1000
 

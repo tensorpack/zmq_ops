@@ -31,7 +31,8 @@ def compile():
     ldflags = ' '.join(tf.sysconfig.get_link_flags())
     ext_suffix = get_ext_suffix()
     py_include = '-isystem ' + sysconfig.get_path('include')
-    py_ldflags = sysconfig.get_config_var('LDFLAGS') + ' -lpython' + sysconfig.get_config_var('LDVERSION')
+    py_ldflags = sysconfig.get_config_var('LDFLAGS') + ' -lpython' \
+        + sysconfig.get_config_var('LDVERSION') or sysconfig.get_config_var('VERSION')
     compile_cmd = 'TF_CXXFLAGS="{}" TF_LDFLAGS="{}" EXT_SUFFIX="{}" ' \
         'PYTHON_CXXFLAGS="{}" PYTHON_LDFLAGS="{}" make -C "{}"'.format(
         cxxflags, ldflags, ext_suffix,

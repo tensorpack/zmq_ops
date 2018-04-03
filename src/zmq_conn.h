@@ -87,7 +87,6 @@ class ZMQConnection : public tensorflow::ResourceBase {
     int num = read_int32(&pos);
     auto& tensors = tlist->tensors;
     tensors.resize(num);
-    CHECK_LE(num, 15);  // probably a format error
 
     for (int i = 0; i < num; ++i) {
       int dt = read_int32(&pos);

@@ -30,6 +30,13 @@ from . import libzmqop
 
 class ZMQPullSocket(object):
     def __init__(self, end_point, types, hwm=None, bind=True, name=None):
+        """
+        Args:
+            end_point (str): zmq endpoint
+            types ([dtype]): list of tensorflow datatype
+            hwm (int): zmq hwm (buffer size)
+            bind (bool): to bind or connect
+        """
         self._types = types
         assert isinstance(bind, bool), bind
 

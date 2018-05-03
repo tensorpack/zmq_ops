@@ -13,6 +13,15 @@
 #include <tensorflow/core/platform/mutex.h>
 #include "zmq.hpp"
 
+
+#ifdef __GNUC__
+#ifndef __clang__
+#if ((__GNUC__ <= 5) && (__GNUC_MINOR__ <= 3))
+#error "GCC >= 5.3 is required!"
+#endif
+#endif  // clang
+#endif  // gnuc
+
 namespace {
 inline int read_int32(char** p) {
   auto pi = reinterpret_cast<const int*>(*p);

@@ -17,13 +17,16 @@ However in TensorFlow there is no good way to receive data from other processes.
 
 ## Build:
 
-Install tensorflow, libzmq, as well as the `zmq.hpp` header from [cppzmq](https://github.com/zeromq/cppzmq).
+Require gcc>=5.3, tensorflow>=1.4, zeromq>=4.
+
+Require the `zmq.hpp` header from [cppzmq](https://github.com/zeromq/cppzmq) at
+your compiler's include path, or under the `src` directory.
 
 Add `/path/to/git/clone/zmq_ops` to `PYTHONPATH` to be able to import it.
 Or use `pip install .` to install it.
 
 Ops will be compiled the first time it gets imported.
-Note that it may require recompilation after a TensorFlow reinstallation.
+Note that it usually requires recompilation after a TensorFlow reinstallation.
 
 ## Use:
 

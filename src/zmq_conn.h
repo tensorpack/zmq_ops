@@ -77,7 +77,9 @@ class ZMQConnection : public tensorflow::ResourceBase {
       }
   }
 
-  std::string DebugString() override { return def_.DebugString(); }
+  // Signature changed in https://github.com/tensorflow/tensorflow/commit/f09a6224bac04fd8b45d72b5babee08212dcf836
+  std::string DebugString() { return def_.DebugString(); }
+  std::string DebugString() const { return def_.DebugString(); }
 
   void recv_tensor_list(RecvTensorList* tlist) {
     {

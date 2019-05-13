@@ -16,7 +16,7 @@
 
 #ifdef __GNUC__
 #ifndef __clang__
-#if ((__GNUC__ <= 5) && (__GNUC_MINOR__ <= 3))
+#if ((__GNUC__ < 5) || (__GNUC__ == 5) && (__GNUC_MINOR__ < 3))
 #error "GCC >= 5.3 is required!"
 #endif
 #endif  // clang

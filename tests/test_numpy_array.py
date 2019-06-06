@@ -135,6 +135,10 @@ def test_make_c_f_array():
     assert not m.make_f_array().flags.c_contiguous
 
 
+def test_make_empty_shaped_array():
+    m.make_empty_shaped_array()
+
+
 def test_wrap():
     def assert_references(a, b, base=None):
         from distutils.version import LooseVersion
@@ -404,3 +408,9 @@ def test_array_create_and_resize(msg):
     a = m.create_and_resize(2)
     assert(a.size == 4)
     assert(np.all(a == 42.))
+
+
+@pytest.unsupported_on_py2
+def test_index_using_ellipsis():
+    a = m.index_using_ellipsis(np.zeros((5, 6, 7)))
+    assert a.shape == (6,)
